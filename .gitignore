@@ -1,0 +1,11 @@
+# OSX
+.DS_Store
+
+# Test binary, build with `go test -c`
+*.test
+
+# Go module
+vendor
+
+# Artifacts of the Fabric SDK
+keystore
