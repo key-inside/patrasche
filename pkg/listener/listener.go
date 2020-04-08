@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"strconv"
 
-	// "github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/peer"
@@ -176,7 +175,7 @@ func listenBlockEvent(client *event.Client, txh tx.Handler, txFilter TxFilter, k
 				typ := t.HeaderType()
 				utc := t.UTC().Format("2006-01-02T15:04:05.000000000Z07:00")
 				pass := txFilter(t)
-				golog.Debugf("TX[%s] Type: %s(%d), ValidationCode: %s(%d), Timestamp: %s, Pass: %t", header.TxId, typ.String(), typ, t.ValidationCode.String(), t.ValidationCode, utc, pass)
+				golog.Debugf("TX[%s] Type: %s(%d), ValidationCode: %s(%d), Timestamp: %s, Pass: %t", t.ID(), typ.String(), typ, t.ValidationCode.String(), t.ValidationCode, utc, pass)
 
 				if pass {
 					if err := txh.Handle(t); err != nil {
