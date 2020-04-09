@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/hyperledger/fabric-protos-go/common"
@@ -282,6 +283,7 @@ func loadBlockKeep() (blockKeep, error) {
 	}
 
 	if keepNum != "" { // number from file or AWS
+		keepNum = strings.TrimSpace(keepNum)
 		num, err := strconv.ParseUint(keepNum, 10, 64)
 		if err != nil {
 			return keep, err
