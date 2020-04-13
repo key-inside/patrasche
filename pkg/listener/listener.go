@@ -23,6 +23,7 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config/cryptoutil"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/events/deliverclient/seek"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
+
 	"github.com/kataras/golog"
 	"github.com/spf13/viper"
 
@@ -153,7 +154,11 @@ func listenBlockEvent(client *event.Client, txh tx.Handler, txFilter TxFilter, k
 		case e := <-notifier:
 			block := e.Block
 			blockNum := block.Header.Number
-			golog.Infof("BLOCK[%d] TxCount: %d", blockNum, len(block.Data.Data))
+			blockHash, err := proto.GenerateBlockHash(block)
+			if err != nil {
+				return err
+			}
+			golog.Infof("BLOCK[%d] TxCount: %d Hash: %x", blockNum, len(block.Data.Data), blockHash)
 
 			// keep current block number if needed
 			keep.number = blockNum
