@@ -46,9 +46,12 @@ func NewRootCommand(app *App) *cobra.Command {
 			cmd.Help()
 			fmt.Println()
 		},
+		PersistentPostRun: func(cmd *cobra.Command, args []string) {
+			fmt.Println()
+		},
 	}
 
-	rootCmd.SetVersionTemplate(version.TemplatedVersion)
+	rootCmd.SetVersionTemplate(fmt.Sprintf("%s %s (%s)\n", app.Name, app.Version, version.TemplatedVersion))
 
 	// patrasche config
 	rootCmd.PersistentFlags().StringP("config", "c", "", "config file path or ARN")

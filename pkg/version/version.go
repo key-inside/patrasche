@@ -11,4 +11,4 @@ import (
 var Version = "v0.1.0"
 
 // TemplatedVersion _
-var TemplatedVersion = fmt.Sprintf("Patrasche version %s, %s %s %s\n", Version, runtime.GOOS, runtime.GOARCH, runtime.Version())
+var TemplatedVersion = fmt.Sprintf("Patrasche %s, %s %s %s", Version, runtime.GOOS, runtime.GOARCH, runtime.Version())
