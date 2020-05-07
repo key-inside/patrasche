@@ -1,6 +1,6 @@
 // Copyright Key Inside Co., Ltd. 2020 All Rights Reserved.
 
-package cmd
+package inspect
 
 import (
 	"github.com/kataras/golog"
@@ -9,11 +9,6 @@ import (
 	"github.com/key-inside/patrasche/handler/inspect"
 	"github.com/key-inside/patrasche/pkg/listener"
 )
-
-func init() {
-	// add it to root command
-	rootCmd.AddCommand(inspectCmd)
-}
 
 var inspectCmd = &cobra.Command{
 	Use:   "inspect",
@@ -24,4 +19,9 @@ var inspectCmd = &cobra.Command{
 			golog.Fatal(err)
 		}
 	},
+}
+
+// Command _
+func Command() *cobra.Command {
+	return inspectCmd
 }

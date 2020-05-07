@@ -7,8 +7,8 @@ import (
 	"runtime"
 )
 
-// Version is set with build flags
-var Version = "unversioned"
+// Version is set manually (Makefile)
+var Version = "v0.1.0"
 
 // TemplatedVersion _
 var TemplatedVersion = fmt.Sprintf("Patrasche version %s, %s %s %s\n", Version, runtime.GOOS, runtime.GOARCH, runtime.Version())

@@ -1,3 +1,5 @@
+# EnvPrefix(ex, PATRASCHE) can be replaced
+
 # logging
 #   level: fatal, error, warn, info, debug or disable
 #
@@ -26,7 +28,7 @@ block: BLOCKNUMBER
 #   channel name
 #
 # PATRASCHE_CHANNEL=milk
-# -c, --channel milk
+# -C, --channel milk
 channel: milk
 
 # follow

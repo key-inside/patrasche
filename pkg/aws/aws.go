@@ -1,6 +1,6 @@
 // Copyright Key Inside Co., Ltd. 2020 All Rights Reserved.
 
-package config
+package aws
 
 import (
 	"fmt"
@@ -15,24 +15,29 @@ import (
 	"github.com/key-inside/patrasche/pkg/aws/ssm"
 )
 
-// GetARN _
+// GetARN returns a ARN from default viper
 func GetARN(name string) (arnObj arn.ARN, raw string, err error) {
+	return GetARNFromViper(viper.GetViper(), name)
+}
+
+// GetARNFromViper _
+func GetARNFromViper(v *viper.Viper, name string) (arnObj arn.ARN, raw string, err error) {
 	region := name + ".region"
 	resource := name + ".parameter"
-	if viper.IsSet(region) && viper.IsSet(resource) {
+	if v.IsSet(region) && v.IsSet(resource) {
 		return arn.ARN{
 			Service:  "ssm",
-			Region:   viper.GetString(region),
-			Resource: viper.GetString(resource),
+			Region:   v.GetString(region),
+			Resource: v.GetString(resource),
 		}, "", nil
 	}
-	raw = viper.GetString(name)
+	raw = v.GetString(name)
 	arnObj, err = arn.Parse(raw)
 	return
 }
 
-// GetContentType _
-func GetContentType(arnObj arn.ARN) string {
+// GetContentTypeOfARN _
+func GetContentTypeOfARN(arnObj arn.ARN) string {
 	ext := filepath.Ext(arnObj.Resource)
 	if "" == ext {
 		return "json" // default is json
@@ -57,7 +62,7 @@ func GetReaderWithARN(arnObj arn.ARN) (io.Reader, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	return strings.NewReader(v), GetContentType(arnObj), nil
+	return strings.NewReader(v), GetContentTypeOfARN(arnObj), nil
 }
 
 // PutStringWithARN _

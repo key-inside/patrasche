@@ -3,10 +3,8 @@
 package listener
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -15,19 +13,13 @@ import (
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/event"
-	mspclient "github.com/hyperledger/fabric-sdk-go/pkg/client/msp"
-	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/context"
-	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/core"
-	mspctx "github.com/hyperledger/fabric-sdk-go/pkg/common/providers/msp"
-	fabcfg "github.com/hyperledger/fabric-sdk-go/pkg/core/config"
-	"github.com/hyperledger/fabric-sdk-go/pkg/core/config/cryptoutil"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/events/deliverclient/seek"
-	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
 
 	"github.com/kataras/golog"
 	"github.com/spf13/viper"
 
-	"github.com/key-inside/patrasche/pkg/config"
+	"github.com/key-inside/patrasche/pkg/aws"
+	"github.com/key-inside/patrasche/pkg/channel"
 	"github.com/key-inside/patrasche/pkg/proto"
 	"github.com/key-inside/patrasche/pkg/tx"
 )
@@ -45,7 +37,7 @@ func (keep blockKeep) stringNumber() string {
 
 func (keep blockKeep) save() error {
 	if keep.arn != nil {
-		return config.PutStringWithARN(*keep.arn, keep.stringNumber())
+		return aws.PutStringWithARN(*keep.arn, keep.stringNumber())
 	} else if keep.path != "" {
 		return ioutil.WriteFile(keep.path, []byte(keep.stringNumber()), 0644)
 	}
@@ -58,39 +50,18 @@ func Listen(txh tx.Handler) error {
 		golog.Fatal("nil handler")
 	}
 
-	var cfg core.ConfigProvider
-	arn, path, err := config.GetARN("network")
-	if err != nil {
-		cfg = fabcfg.FromFile(path)
-	} else { // AWS resource
-		in, typ, err := config.GetReaderWithARN(arn)
-		if err != nil {
-			return err
-		}
-		cfg = fabcfg.FromReader(in, typ)
-	}
-
-	// sdk
-	sdk, err := fabsdk.New(cfg)
+	// patrasche fabric channel
+	channel, err := channel.New()
 	if err != nil {
 		return err
 	}
-	defer sdk.Close()
-
-	// msp
-	si, err := getSigningIdentity(sdk.Context())
-	if err != nil {
-		return err
-	}
+	defer channel.Close()
 
 	// block number keepping
 	keep, err := loadBlockKeep()
 	if err != nil {
 		return err
 	}
-
-	// channel provider
-	ctx := sdk.ChannelContext(viper.GetString("channel"), fabsdk.WithIdentity(si))
 
 	// options
 	var opts []event.ClientOption
@@ -103,7 +74,7 @@ func Listen(txh tx.Handler) error {
 	}
 
 	// client & listen
-	client, err := event.New(ctx, opts...)
+	client, err := channel.NewEventClient(opts...)
 	if err != nil {
 		return err
 	}
@@ -198,70 +169,10 @@ func listenBlockEvent(client *event.Client, txh tx.Handler, txFilter TxFilter, k
 	return nil
 }
 
-func getSigningIdentity(ctx context.ClientProvider) (mspctx.SigningIdentity, error) {
-	client, err := mspclient.New(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	arn, nameOrPath, err := config.GetARN("identity")
-	if err != nil {
-		var err error
-		si, err := client.GetSigningIdentity(nameOrPath)
-		if err != nil {
-			if err != mspclient.ErrUserNotFound {
-				golog.Debugf("%#v", err)
-				return nil, err
-			}
-
-			// msp style
-			golog.Debug("identity from msp directory")
-
-			mspDir := nameOrPath
-			_ctx, err := ctx()
-			if err != nil {
-				return nil, err
-			}
-			cert, err := ioutil.ReadFile(filepath.Join(mspDir, "signcerts", "cert.pem"))
-			if err != nil {
-				return nil, err
-			}
-			pubKey, err := cryptoutil.GetPublicKeyFromCert(cert, _ctx.CryptoSuite())
-			if err != nil {
-				return nil, err
-			}
-			priKey, _ := ioutil.ReadFile(filepath.Join(mspDir, "keystore", fmt.Sprintf("%x_sk", pubKey.SKI())))
-
-			return client.CreateSigningIdentity(mspctx.WithCert(cert), mspctx.WithPrivateKey(priKey))
-		}
-		// else
-		golog.Debug("identity from store")
-		return si, nil
-	}
-
-	// else AWS resource
-	golog.Debug("identity from arn")
-
-	in, typ, err := config.GetReaderWithARN(arn)
-	if err != nil {
-		return nil, err
-	}
-	// uses viper for config consistency
-	temp := viper.New()
-	temp.SetConfigType(typ)
-	if err := temp.ReadConfig(in); err != nil {
-		return nil, err
-	}
-	cert := []byte(temp.GetString("cert"))
-	priKey := []byte(temp.GetString("key"))
-
-	return client.CreateSigningIdentity(mspctx.WithCert(cert), mspctx.WithPrivateKey(priKey))
-}
-
 func loadBlockKeep() (blockKeep, error) {
 	keep := blockKeep{newest: true}
 	keepNum := ""
-	keepArn, numOrPath, err := config.GetARN("block")
+	keepArn, numOrPath, err := aws.GetARN("block")
 	if err != nil {
 		if numOrPath != "" {
 			num, err := strconv.ParseUint(numOrPath, 10, 64) // check number or path
@@ -281,7 +192,7 @@ func loadBlockKeep() (blockKeep, error) {
 		} // else nothing for block number
 	} else { // AWS resource
 		keep.arn = &keepArn // keep ARN
-		keepNum, err = config.GetStringWithARN(keepArn)
+		keepNum, err = aws.GetStringWithARN(keepArn)
 		if err != nil {
 			return keep, err
 		}
