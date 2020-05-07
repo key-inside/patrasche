@@ -40,8 +40,7 @@ func NewRootCommand(app *App) *cobra.Command {
 		Version: version.Version,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			logo.Print()
-			version.Print()
-			fmt.Printf("Voilamart version %s\n\n", app.Version)
+			fmt.Println(cmd.VersionTemplate())
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
