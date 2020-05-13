@@ -58,7 +58,7 @@ func NewRootCommand(app *App) *cobra.Command {
 	pFlags := rootCmd.PersistentFlags()
 
 	// patrasche config
-	pFlags.AddFlagSet(flag.NewARNFlagSet("patrasche.config", "", "config source (path, ARN)"))
+	pFlags.AddFlagSet(flag.NewARNFlagSet("config", "", "config source (path, ARN)"))
 	// network config
 	pFlags.AddFlagSet(flag.NewARNFlagSet("patrasche.network", "", "network config source (path, ARN)"))
 	// network identity
@@ -91,7 +91,7 @@ func NewRootCommand(app *App) *cobra.Command {
 
 func initConfig() {
 	// set config to viper
-	arn, path, err := aws.GetARN("patrasche.config")
+	arn, path, err := aws.GetARN("config")
 	if err != nil {
 		if path != "" {
 			viper.SetConfigFile(path)
