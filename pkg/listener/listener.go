@@ -88,14 +88,14 @@ func txFilter() TxFilter {
 	var idFilter *regexp.Regexp
 	var typeFilter common.HeaderType
 
-	idFSet := viper.IsSet("tx.id")
+	idFSet := viper.IsSet("patrasche.tx.id")
 	if idFSet {
-		idFilter = regexp.MustCompilePOSIX(viper.GetString("tx.id"))
+		idFilter = regexp.MustCompilePOSIX(viper.GetString("patrasche.tx.id"))
 		golog.Infof("TX-Filter[ID] %s", idFilter.String())
 	}
-	typeFSet := viper.IsSet("tx.type")
+	typeFSet := viper.IsSet("patrasche.tx.type")
 	if typeFSet {
-		typsStr := viper.GetString("tx.type")
+		typsStr := viper.GetString("patrasche.tx.type")
 		if i, err := strconv.Atoi(typsStr); err == nil {
 			typeFilter = common.HeaderType(i)
 		} else {
@@ -118,7 +118,7 @@ func listenBlockEvent(client *event.Client, txh tx.Handler, txFilter TxFilter, k
 	}
 	defer client.Unregister(registration)
 
-	follow := viper.GetBool("follow")
+	follow := viper.GetBool("patrasche.follow")
 
 	for {
 		select {
@@ -172,7 +172,7 @@ func listenBlockEvent(client *event.Client, txh tx.Handler, txFilter TxFilter, k
 func loadBlockKeep() (blockKeep, error) {
 	keep := blockKeep{newest: true}
 	keepNum := ""
-	keepArn, numOrPath, err := aws.GetARN("block")
+	keepArn, numOrPath, err := aws.GetARN("patrasche.block")
 	if err != nil {
 		if numOrPath != "" {
 			num, err := strconv.ParseUint(numOrPath, 10, 64) // check number or path

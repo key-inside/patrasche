@@ -1,76 +1,76 @@
-# EnvPrefix(ex, PATRASCHE) can be replaced
+# * {Prefix} will be replaced by SetEnvPrefix
+# * [ARN] tagged fields' value can be an ARN or can be a SSM object
+#   ex, --config arn:aws..:parameter/test/patrasche/config
+#        or
+#       --config.region ap-northeast-2
+#       --config.parameter test/patrasche/config
 
-# logging
-#   level: fatal, error, warn, info, debug or disable
-#
-# PATRASCHE_LOGGING_LEVEL=debug
-# --logging.level debug
-logging:
-  level: debug 
+patrasche:
+  # logging
+  #   level: fatal, error, warn, info, debug or disable
+  #
+  # {Prefix}_PATRASCHE_LOGGING_LEVEL=debug
+  # --patrasche.logging.level debug
+  logging:
+    level: debug 
 
-# block
-#   if it is a number, it's starting block number. not set = newest
-#
-# PATRASCHE_BLOCK=6050
-# -b, --block 6050
-# block: 5692
-#
-#   if it is a filepath or a AWS resource, it's a 'keep'
-#   'keep' is a storage the current proccessing block number.
-#
-# PATRASCHE_BLOCK=./BLOCKNUMBER
-# -b, --block arn:aws..:test/patrasche/worker-001/block
-# --block.region, --block.parameter
-# block: arn:aws:ssm:region:account-id:parameter/test/patrasche/block
-block: BLOCKNUMBER
+  # block [ARN]
+  #   if it is a number, it's starting block number. not set = newest
+  #
+  # {Prefix}_PATRASCHE_BLOCK=6050
+  # --patrasche.block 6050
+  # block: 5692
+  #
+  #   if it is a filepath or a AWS resource, it's a 'keep'
+  #   'keep' is a storage the current proccessing block number.
+  #
+  # {Prefix}_PATRASCHE_BLOCK=./BLOCKNUMBER
+  # --patrasche.block arn:aws..:test/patrasche/worker-001/block
+  block: BLOCKNUMBER
 
-# channel
-#   channel name
-#
-# PATRASCHE_CHANNEL=milk
-# -C, --channel milk
-channel: milk
+  # channel
+  #   channel name
+  #
+  # {Prefix}_PATRASCHE_CHANNEL=milk
+  # --patrasche.channel milk
+  channel: milk
 
-# follow
-#   following next blocks
-#
-# PATRASCHE_FOLLOW=true
-# -f, --follow
-# follow: true
+  # follow
+  #   following next blocks
+  #
+  # {Prefix}_PATRASCHE_FOLLOW=true
+  # --patrasche.follow
+  follow: false
 
-# tx
-#   type: type filter, (ex, 3 or ENDORSER_TRANSACTION)
-#            0: "MESSAGE",
-#            1: "CONFIG",
-#            2: "CONFIG_UPDATE",
-#            3: "ENDORSER_TRANSACTION",
-#            4: "ORDERER_TRANSACTION",
-#            5: "DELIVER_SEEK_INFO",
-#            6: "CHAINCODE_PACKAGE",
-#            8: "PEER_ADMIN_OPERATION",
-#   id: id filter pattern
-#
-# PATRASCHE_TX_TYPE=3
-# PATRASCHE_TX_ID="^[89abcdef]"
-# -t, --tx.type ENDORSER_TRANSACTION
-# -i, --tx.id "^[89abcdef]"
-tx:
-  type: ENDORSER_TRANSACTION
+  # tx
+  #   type: type filter, (ex, 3 or ENDORSER_TRANSACTION)
+  #            0: "MESSAGE",
+  #            1: "CONFIG",
+  #            2: "CONFIG_UPDATE",
+  #            3: "ENDORSER_TRANSACTION",
+  #            4: "ORDERER_TRANSACTION",
+  #            5: "DELIVER_SEEK_INFO",
+  #            6: "CHAINCODE_PACKAGE",
+  #            8: "PEER_ADMIN_OPERATION",
+  #   id: id filter pattern
+  #
+  # {Prefix}_PATRASCHE_TX_TYPE=3
+  # {Prefix}_PATRASCHE_TX_ID="^[89abcdef]"
+  # --patrasche.tx.type ENDORSER_TRANSACTION
+  # --patrasche.tx.id "^[89abcdef]"
+  tx:
+    type: ENDORSER_TRANSACTION
 
-# network
-#   file or ARN
-#
-# PATRASCHE_NETWORK=./config/network.yaml
-# -n ./config/network.yaml
-# --network arn:aws:secretsmanager:region:account-id:secret:test/patrasche/network.yaml
-# --network.region, --network.parameter
-network: ./config/network.yaml
+  # network [ARN]
+  #   network config file path or ARN
+  #
+  # {Prefix}_PATRASCHE_NETWORK=./config/network.yaml
+  # --patrasche.network arn:aws:secretsmanager:region:account-id:secret:test/patrasche/network.yaml
+  network: ./config/network.yaml
 
-# identity
-#   username of crytostore, msp path or ARN
-#
-# PATRASCHE_IDENTITY=patrasche-001
-# -u ./test/users/patrasche-001/msp
-# --identity arn:aws:secretsmanager:region:account-id:secret:test/patrasche/identity.yaml
-# --identity.region, --identity.parameter
-identity: ./test/users/patrasche-001/msp
+  # identity [ARN]
+  #   username of crytostore, msp path or ARN
+  #
+  # {Prefix}_PATRASCHE_IDENTITY=patrasche-001
+  # --patrasche.identity arn:aws:secretsmanager:region:account-id:secret:test/patrasche/identity.yaml
+  identity: ./test/users/patrasche-001/msp

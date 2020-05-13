@@ -4,12 +4,14 @@ package patrasche
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/kataras/golog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/key-inside/patrasche/pkg/aws"
+	"github.com/key-inside/patrasche/pkg/flag"
 	"github.com/key-inside/patrasche/pkg/listener"
 	"github.com/key-inside/patrasche/pkg/logo"
 	"github.com/key-inside/patrasche/pkg/tx"
@@ -53,39 +55,34 @@ func NewRootCommand(app *App) *cobra.Command {
 
 	rootCmd.SetVersionTemplate(fmt.Sprintf("%s %s (%s)\n", app.Name, app.Version, version.TemplatedVersion))
 
-	// patrasche config
-	rootCmd.PersistentFlags().StringP("config", "c", "", "config file path or ARN")
-	rootCmd.PersistentFlags().String("config.region", "", "config SSM region")
-	rootCmd.PersistentFlags().String("config.parameter", "", "config SSM parameter")
-	// network config
-	rootCmd.PersistentFlags().StringP("network", "n", "", "network config file path or ARN")
-	rootCmd.PersistentFlags().String("network.region", "", "network SSM region")
-	rootCmd.PersistentFlags().String("network.parameter", "", "network SSM parameter")
-	// network identity
-	rootCmd.PersistentFlags().StringP("identity", "u", "", "user id, msp path or ARN")
-	rootCmd.PersistentFlags().String("identity.region", "", "identity SSM region")
-	rootCmd.PersistentFlags().String("identity.parameter", "", "identity SSM parameter")
-	// network channel
-	rootCmd.PersistentFlags().StringP("channel", "C", "", "channel name")
-	// block
-	rootCmd.PersistentFlags().StringP("block", "b", "", "number or file path or ARN for block number, unset or empty is newest block")
-	rootCmd.PersistentFlags().String("block.region", "", "block SSM region")
-	rootCmd.PersistentFlags().String("block.parameter", "", "block SSM parameter")
-	// follow next blocks
-	rootCmd.PersistentFlags().BoolP("follow", "f", false, "follow event")
-	// tx filter
-	rootCmd.PersistentFlags().StringP("tx.id", "i", "", "tx ID pattern")
-	rootCmd.PersistentFlags().StringP("tx.type", "t", "", "tx header type")
-	// logging
-	rootCmd.PersistentFlags().String("logging.level", "info", "fatal, error, warn, info, debug or disable")
+	pFlags := rootCmd.PersistentFlags()
 
-	viper.BindPFlags(rootCmd.PersistentFlags())
+	// patrasche config
+	pFlags.AddFlagSet(flag.NewARNFlagSet("patrasche.config", "", "config source (path, ARN)"))
+	// network config
+	pFlags.AddFlagSet(flag.NewARNFlagSet("patrasche.network", "", "network config source (path, ARN)"))
+	// network identity
+	pFlags.AddFlagSet(flag.NewARNFlagSet("patrasche.identity", "", "identity (user ID, msp path, ARN)"))
+	// network channel
+	pFlags.String("patrasche.channel", "", "channel name")
+	// block
+	pFlags.AddFlagSet(flag.NewARNFlagSet("patrasche.block", "", "block number (number, path, ARN), unset or empty is newest block"))
+	// follow next blocks
+	pFlags.Bool("patrasche.follow", false, "follow event")
+	// tx filter
+	pFlags.String("patrasche.tx.id", "", "tx ID pattern")
+	pFlags.String("patrasche.tx.type", "", "tx header type")
+	// logging
+	pFlags.String("patrasche.logging.level", "info", "fatal, error, warn, info, debug or disable")
+
+	viper.BindPFlags(pFlags)
 	if app.EnvPrefix != "" {
 		viper.SetEnvPrefix(app.EnvPrefix)
 	} else {
-		viper.SetEnvPrefix("PATRASCHE")
+		viper.SetEnvPrefix(app.Name)
 	}
 	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	cobra.OnInitialize(initConfig)
 
@@ -94,7 +91,7 @@ func NewRootCommand(app *App) *cobra.Command {
 
 func initConfig() {
 	// set config to viper
-	arn, path, err := aws.GetARN("config")
+	arn, path, err := aws.GetARN("patrasche.config")
 	if err != nil {
 		if path != "" {
 			viper.SetConfigFile(path)
@@ -114,7 +111,7 @@ func initConfig() {
 	}
 
 	// update logging level
-	if lv := viper.GetString("logging.level"); lv != "" {
+	if lv := viper.GetString("patrasche.logging.level"); lv != "" {
 		golog.SetLevel(lv)
 	}
 }

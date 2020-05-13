@@ -32,7 +32,7 @@ type Channel struct {
 // New _
 func New(options ...fabsdk.ContextOption) (*Channel, error) {
 	var cfg core.ConfigProvider
-	arn, path, err := aws.GetARN("network")
+	arn, path, err := aws.GetARN("patrasche.network")
 	if err != nil {
 		cfg = fabcfg.FromFile(path)
 	} else { // AWS resource
@@ -57,7 +57,7 @@ func New(options ...fabsdk.ContextOption) (*Channel, error) {
 
 	// channel provider
 	options = append([]fabsdk.ContextOption{fabsdk.WithIdentity(si)}, options...)
-	ctx := sdk.ChannelContext(viper.GetString("channel"), options...)
+	ctx := sdk.ChannelContext(viper.GetString("patrasche.channel"), options...)
 
 	return &Channel{
 		sdk:      sdk,
@@ -89,7 +89,7 @@ func getSigningIdentity(ctx context.ClientProvider) (mspctx.SigningIdentity, err
 		return nil, err
 	}
 
-	arn, nameOrPath, err := aws.GetARN("identity")
+	arn, nameOrPath, err := aws.GetARN("patrasche.identity")
 	if err != nil {
 		var err error
 		si, err := client.GetSigningIdentity(nameOrPath)
