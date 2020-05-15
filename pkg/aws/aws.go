@@ -45,6 +45,20 @@ func GetContentTypeOfARN(arnObj arn.ARN) string {
 	return ext[1:] // remove .
 }
 
+// GetViperWithARN _
+func GetViperWithARN(arnObj arn.ARN) (*viper.Viper, error) {
+	in, typ, err := GetReaderWithARN(arnObj)
+	if err != nil {
+		return nil, err
+	}
+	subV := viper.New()
+	subV.SetConfigType(typ)
+	if err := subV.ReadConfig(in); err != nil {
+		return nil, err
+	}
+	return subV, nil
+}
+
 // GetStringWithARN _
 func GetStringWithARN(arnObj arn.ARN) (string, error) {
 	switch arnObj.Service {
