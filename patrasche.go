@@ -96,17 +96,17 @@ func initConfig() {
 		if path != "" {
 			viper.SetConfigFile(path)
 			if err := viper.ReadInConfig(); err != nil {
-				golog.Fatal("Can't read config:", err)
+				golog.Fatal("Can't read config: ", err)
 			}
 		}
 	} else { // AWS resource
 		in, typ, err := aws.GetReaderWithARN(arn)
 		if err != nil {
-			golog.Fatal("Can't get config from AWS:", err)
+			golog.Fatal("Can't get config from AWS: ", err)
 		}
 		viper.SetConfigType(typ)
 		if err := viper.ReadConfig(in); err != nil {
-			golog.Fatal("Can't read config:", err)
+			golog.Fatal("Can't read config: ", err)
 		}
 	}
 
