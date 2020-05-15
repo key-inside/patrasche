@@ -45,6 +45,26 @@ func GetContentTypeOfARN(arnObj arn.ARN) string {
 	return ext[1:] // remove .
 }
 
+// GetReaderWithARN _
+func GetReaderWithARN(arnObj arn.ARN) (io.Reader, string, error) {
+	v, err := GetStringWithARN(arnObj)
+	if err != nil {
+		return nil, "", err
+	}
+	return strings.NewReader(v), GetContentTypeOfARN(arnObj), nil
+}
+
+// GetStringWithARN _
+func GetStringWithARN(arnObj arn.ARN) (string, error) {
+	switch arnObj.Service {
+	case "ssm":
+		return ssm.GetParameterString(arnObj.Region, arnObj.Resource)
+	case "secretsmanager":
+		return secretsmanager.GetSecretValueString(arnObj.Region, arnObj.Resource)
+	}
+	return "", fmt.Errorf("not supported AWS service")
+}
+
 // GetViperWithARN _
 func GetViperWithARN(arnObj arn.ARN) (*viper.Viper, error) {
 	in, typ, err := GetReaderWithARN(arnObj)
@@ -59,24 +79,18 @@ func GetViperWithARN(arnObj arn.ARN) (*viper.Viper, error) {
 	return subV, nil
 }
 
-// GetStringWithARN _
-func GetStringWithARN(arnObj arn.ARN) (string, error) {
-	switch arnObj.Service {
-	case "ssm":
-		return ssm.GetParameterString(arnObj.Region, arnObj.Resource)
-	case "secretsmanager":
-		return secretsmanager.GetSecretValueString(arnObj.Region, arnObj.Resource)
-	}
-	return "", fmt.Errorf("not supported AWS service")
+// MergeInGlobalViperWithARN _
+func MergeInGlobalViperWithARN(arnObj arn.ARN) error {
+	return MergeInViperWithARN(viper.GetViper(), arnObj)
 }
 
-// GetReaderWithARN _
-func GetReaderWithARN(arnObj arn.ARN) (io.Reader, string, error) {
-	v, err := GetStringWithARN(arnObj)
+// MergeInViperWithARN _
+func MergeInViperWithARN(v *viper.Viper, arnObj arn.ARN) error {
+	temp, err := GetViperWithARN(arnObj)
 	if err != nil {
-		return nil, "", err
+		return err
 	}
-	return strings.NewReader(v), GetContentTypeOfARN(arnObj), nil
+	return v.MergeConfigMap(temp.AllSettings())
 }
 
 // PutStringWithARN _
