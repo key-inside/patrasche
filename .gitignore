@@ -5,7 +5,7 @@
 *.test
 
 # Go module
-vendor
+vendor/
 
 # Artifacts of the Fabric SDK
-keystore
+keystore/
