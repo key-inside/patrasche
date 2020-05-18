@@ -21,8 +21,10 @@ patrasche:
   # --patrasche.block 6050
   # block: 5692
   #
-  #   if it is a filepath or a AWS resource, it's a 'keep'
+  #   if it is a filepath or an AWS resource, it's a 'keep'
   #   'keep' is a storage the current proccessing block number.
+  #
+  #   the performance for keeping in an AWS resource is very low!
   #
   # {Prefix}_PATRASCHE_BLOCK=./BLOCKNUMBER
   # --patrasche.block arn:aws..:test/patrasche/worker-001/block

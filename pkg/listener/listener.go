@@ -116,13 +116,18 @@ func listenBlockEvent(client *event.Client, txh tx.Handler, txFilter TxFilter, k
 	if err != nil {
 		return err
 	}
-	defer client.Unregister(registration)
 
 	follow := viper.GetBool("patrasche.follow")
 
 	for {
 		select {
 		case e := <-notifier:
+			if !follow {
+				// IMPORTANT: unregister the registration here !!!
+				// if you uses 'defer', you can see so many 'dispatcher.(*Dispatcher).publishBlockEvents -> WARN Timed out sending block event.' logs
+				client.Unregister(registration)
+			}
+
 			block := e.Block
 			blockNum := block.Header.Number
 			blockHash, err := proto.GenerateBlockHash(block)

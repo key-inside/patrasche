@@ -1,14 +1,15 @@
 module github.com/key-inside/patrasche
 
-go 1.12
+go 1.14
 
 require (
-	github.com/aws/aws-sdk-go v1.30.26
-	github.com/golang/protobuf v1.4.1
+	github.com/aws/aws-sdk-go v1.30.29
+	github.com/golang/protobuf v1.4.2
 	github.com/hyperledger/fabric v1.4.6
 	github.com/hyperledger/fabric-protos-go v0.0.0-20200506201313-25f6564b9ac4
 	github.com/hyperledger/fabric-sdk-go v1.0.0-beta1
-	github.com/kataras/golog v0.0.13
+	github.com/kataras/golog v0.0.15
+	github.com/miekg/pkcs11 v1.0.3 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.0.0

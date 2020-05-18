@@ -1,7 +1,7 @@
 client:
   organization: patrasche
   logging:
-    level: info
+    level: info # recommanded 'error' on production
   # credentialStore:
   #   cryptoStore:
   #     path: do-not-use
