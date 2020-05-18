@@ -29,7 +29,7 @@ or
 > ARN
 * SSM (Parameter Store)
 ```sh
-% testdapp inspect --config.region=ap-northeast-2 --config.parameter=test/patrasche/config.yaml
+% testdapp inspect --config.region=ap-northeast-2 --config.parameter=/test/patrasche/config.yaml
 % testdapp inspect --config=arn:aws:ssm:region:account-id:parameter/test/patrasche/config.yaml
 ```
 * Secrets Manager
