@@ -31,6 +31,8 @@ type App struct {
 	Long      string
 	EnvPrefix string
 	Version   string
+
+	SimplePersistentFlags bool
 }
 
 // NewRootCommand _
@@ -65,15 +67,18 @@ func NewRootCommand(app *App) *cobra.Command {
 	pFlags.AddFlagSet(flag.NewARNFlagSet("patrasche.identity", "", "identity (user ID, msp path, ARN)"))
 	// network channel
 	pFlags.String("patrasche.channel", "", "channel name")
-	// block
-	pFlags.AddFlagSet(flag.NewARNFlagSet("patrasche.block", "", "block number (number, path, ARN), unset or empty is newest block"))
-	// follow next blocks
-	pFlags.Bool("patrasche.follow", false, "follow event")
-	// tx filter
-	pFlags.String("patrasche.tx.id", "", "tx ID pattern")
-	pFlags.String("patrasche.tx.type", "", "tx header type")
 	// logging
 	pFlags.String("patrasche.logging.level", "info", "fatal, error, warn, info, debug or disable")
+
+	if !app.SimplePersistentFlags {
+		// block
+		pFlags.AddFlagSet(flag.NewARNFlagSet("patrasche.block", "", "block number (number, path, ARN), unset or empty is newest block"))
+		// follow next blocks
+		pFlags.Bool("patrasche.follow", false, "follow event")
+		// tx filter
+		pFlags.String("patrasche.tx.id", "", "tx ID pattern")
+		pFlags.String("patrasche.tx.type", "", "tx header type")
+	}
 
 	viper.BindPFlags(pFlags)
 	if app.EnvPrefix != "" {
