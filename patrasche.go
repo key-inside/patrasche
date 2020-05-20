@@ -27,6 +27,7 @@ func init() {
 // App options for creating the root command
 type App struct {
 	Name      string
+	Use       string
 	Short     string
 	Long      string
 	EnvPrefix string
@@ -37,8 +38,13 @@ type App struct {
 
 // NewRootCommand _
 func NewRootCommand(app *App) *cobra.Command {
+	use := app.Name
+	if app.Use != "" {
+		use = app.Use
+	}
+
 	rootCmd := &cobra.Command{
-		Use:     app.Name,
+		Use:     use,
 		Short:   app.Short,
 		Long:    app.Long,
 		Version: version.Version,

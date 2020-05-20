@@ -8,7 +8,7 @@ import (
 )
 
 // Version is set manually (Makefile)
-var Version = "v0.3.1"
+var Version = "v0.3.2"
 
 // TemplatedVersion _
 var TemplatedVersion = fmt.Sprintf("Patrasche %s, %s %s %s", Version, runtime.GOOS, runtime.GOARCH, runtime.Version())
