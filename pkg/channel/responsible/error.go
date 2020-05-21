@@ -18,7 +18,11 @@ type Error struct {
 
 // Error implements error interface
 func (e Error) Error() string {
-	return e.Message
+	data, err := json.Marshal(e)
+	if err != nil {
+		return e.Message
+	}
+	return string(data)
 }
 
 // ToError _
