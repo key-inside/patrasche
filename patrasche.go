@@ -73,6 +73,8 @@ func NewRootCommand(app *App) *cobra.Command {
 	pFlags.AddFlagSet(flag.NewARNFlagSet("patrasche.identity", "", "identity (user ID, msp path, ARN)"))
 	// network channel
 	pFlags.String("patrasche.channel", "", "channel name")
+	// network client organization
+	pFlags.String("patrasche.organization", "", "client organization name")
 	// logging
 	pFlags.String("patrasche.logging.level", "info", "fatal, error, warn, info, debug or disable")
 

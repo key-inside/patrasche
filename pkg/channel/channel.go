@@ -29,6 +29,12 @@ type Channel struct {
 	ctx      context.ChannelProvider
 }
 
+type _organizationConfig string
+
+func (c _organizationConfig) Client() *mspctx.ClientConfig {
+	return &mspctx.ClientConfig{Organization: string(c)}
+}
+
 // New _
 func New(options ...fabsdk.ContextOption) (*Channel, error) {
 	var cfg core.ConfigProvider
@@ -44,7 +50,12 @@ func New(options ...fabsdk.ContextOption) (*Channel, error) {
 	}
 
 	// sdk
-	sdk, err := fabsdk.New(cfg)
+	opts := []fabsdk.Option{}
+	if viper.IsSet("patrasche.organization") {
+		orgCfg := _organizationConfig(viper.GetString("patrasche.organization"))
+		opts = append(opts, fabsdk.WithIdentityConfig(orgCfg))
+	}
+	sdk, err := fabsdk.New(cfg, opts...)
 	if err != nil {
 		return nil, err
 	}
