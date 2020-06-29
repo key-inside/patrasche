@@ -8,18 +8,19 @@ import (
 	"path/filepath"
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
-	"github.com/hyperledger/fabric-sdk-go/pkg/client/event"
 	mspclient "github.com/hyperledger/fabric-sdk-go/pkg/client/msp"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/context"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/core"
 	mspctx "github.com/hyperledger/fabric-sdk-go/pkg/common/providers/msp"
 	fabcfg "github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config/cryptoutil"
+	"github.com/hyperledger/fabric-sdk-go/pkg/fab/events/deliverclient/seek"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
 	"github.com/kataras/golog"
 	"github.com/spf13/viper"
 
 	"github.com/key-inside/patrasche/pkg/aws"
+	"github.com/key-inside/patrasche/pkg/channel/event"
 )
 
 // Channel _
@@ -29,14 +30,14 @@ type Channel struct {
 	ctx      context.ChannelProvider
 }
 
-type _organizationConfig string
+// type _organizationConfig string
 
-func (c _organizationConfig) Client() *mspctx.ClientConfig {
-	return &mspctx.ClientConfig{Organization: string(c)}
-}
+// func (c _organizationConfig) Client() *mspctx.ClientConfig {
+// 	return &mspctx.ClientConfig{Organization: string(c)}
+// }
 
 // New _
-func New(options ...fabsdk.ContextOption) (*Channel, error) {
+func New(ctxOpts ...fabsdk.ContextOption) (*Channel, error) {
 	var cfg core.ConfigProvider
 	arn, path, err := aws.GetARN("patrasche.network")
 	if err != nil {
@@ -50,12 +51,13 @@ func New(options ...fabsdk.ContextOption) (*Channel, error) {
 	}
 
 	// sdk
-	opts := []fabsdk.Option{}
-	if viper.IsSet("patrasche.organization") {
-		orgCfg := _organizationConfig(viper.GetString("patrasche.organization"))
-		opts = append(opts, fabsdk.WithIdentityConfig(orgCfg))
-	}
-	sdk, err := fabsdk.New(cfg, opts...)
+	// opts := []fabsdk.Option{}
+	// if viper.IsSet("patrasche.organization") {
+	// 	orgCfg := _organizationConfig(viper.GetString("patrasche.organization"))
+	// 	opts = append(opts, fabsdk.WithIdentityConfig(orgCfg))
+	// }
+	// sdk, err := fabsdk.New(cfg, opts...)
+	sdk, err := fabsdk.New(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -67,8 +69,8 @@ func New(options ...fabsdk.ContextOption) (*Channel, error) {
 	}
 
 	// channel provider
-	options = append([]fabsdk.ContextOption{fabsdk.WithIdentity(si)}, options...)
-	ctx := sdk.ChannelContext(viper.GetString("patrasche.channel"), options...)
+	ctxOpts = append([]fabsdk.ContextOption{fabsdk.WithIdentity(si)}, ctxOpts...)
+	ctx := sdk.ChannelContext(viper.GetString("patrasche.channel"), ctxOpts...)
 
 	return &Channel{
 		sdk:      sdk,
@@ -90,8 +92,8 @@ func (c *Channel) NewClient(options ...channel.ClientOption) (*channel.Client, e
 }
 
 // NewEventClient returns an event client
-func (c *Channel) NewEventClient(options ...event.ClientOption) (*event.Client, error) {
-	return event.New(c.ctx, options...)
+func (c *Channel) NewEventClient(fromBlock uint64, seekType seek.Type) (*event.Client, error) {
+	return event.New(c.ctx, fromBlock, seekType)
 }
 
 func getSigningIdentity(ctx context.ClientProvider) (mspctx.SigningIdentity, error) {

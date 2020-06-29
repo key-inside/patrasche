@@ -76,7 +76,7 @@ func NewRootCommand(app *App) *cobra.Command {
 	// network client organization
 	// ISSUE: it works....
 	//        but if network config file has multiple organization, it almost fails to get QueryBlockConfig every time
-	pFlags.String("patrasche.organization", "", "client organization name")
+	// pFlags.String("patrasche.organization", "", "client organization name")
 	// logging
 	pFlags.String("patrasche.logging.level", "info", "fatal, error, warn, info, debug or disable")
 

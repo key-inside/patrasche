@@ -12,7 +12,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/peer"
-	"github.com/hyperledger/fabric-sdk-go/pkg/client/event"
+
+	// "github.com/hyperledger/fabric-sdk-go/pkg/client/event"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/events/deliverclient/seek"
 
 	"github.com/kataras/golog"
@@ -20,6 +21,7 @@ import (
 
 	"github.com/key-inside/patrasche/pkg/aws"
 	"github.com/key-inside/patrasche/pkg/channel"
+	"github.com/key-inside/patrasche/pkg/channel/event"
 	"github.com/key-inside/patrasche/pkg/proto"
 	"github.com/key-inside/patrasche/pkg/tx"
 )
@@ -64,17 +66,19 @@ func Listen(txh tx.Handler) error {
 	}
 
 	// options
-	var opts []event.ClientOption
+	// var opts []event.ClientOption
+	var seekType seek.Type = seek.FromBlock
 	if keep.newest {
-		opts = []event.ClientOption{event.WithBlockEvents(), event.WithSeekType(seek.Newest)}
-		// seek.Newest starting from lastest block.
-		// so, you must have a plan to prevent duplicated processing the block
-	} else {
-		opts = []event.ClientOption{event.WithBlockEvents(), event.WithSeekType(seek.FromBlock), event.WithBlockNum(keep.number)}
+		seekType = seek.Newest
+		// 	opts = []event.ClientOption{event.WithBlockEvents(), event.WithSeekType(seek.Newest)}
+		// 	// seek.Newest starting from lastest block.
+		// 	// so, you must have a plan to prevent duplicated processing the block
+		// } else {
+		// 	opts = []event.ClientOption{event.WithBlockEvents(), event.WithSeekType(seek.FromBlock), event.WithBlockNum(keep.number)}
 	}
 
 	// client & listen
-	client, err := channel.NewEventClient(opts...)
+	client, err := channel.NewEventClient(keep.number, seekType)
 	if err != nil {
 		return err
 	}
