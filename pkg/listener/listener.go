@@ -12,10 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/peer"
-
-	// "github.com/hyperledger/fabric-sdk-go/pkg/client/event"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/events/deliverclient/seek"
-
 	"github.com/kataras/golog"
 	"github.com/spf13/viper"
 
@@ -70,11 +67,6 @@ func Listen(txh tx.Handler) error {
 	var seekType seek.Type = seek.FromBlock
 	if keep.newest {
 		seekType = seek.Newest
-		// 	opts = []event.ClientOption{event.WithBlockEvents(), event.WithSeekType(seek.Newest)}
-		// 	// seek.Newest starting from lastest block.
-		// 	// so, you must have a plan to prevent duplicated processing the block
-		// } else {
-		// 	opts = []event.ClientOption{event.WithBlockEvents(), event.WithSeekType(seek.FromBlock), event.WithBlockNum(keep.number)}
 	}
 
 	// client & listen
@@ -120,18 +112,13 @@ func listenBlockEvent(client *event.Client, txh tx.Handler, txFilter TxFilter, k
 	if err != nil {
 		return err
 	}
+	defer client.Unregister(registration)
 
 	follow := viper.GetBool("patrasche.follow")
 
 	for {
 		select {
 		case e := <-notifier:
-			if !follow {
-				// IMPORTANT: unregister the registration here !!!
-				// if you uses 'defer', you can see so many 'dispatcher.(*Dispatcher).publishBlockEvents -> WARN Timed out sending block event.' logs
-				client.Unregister(registration)
-			}
-
 			block := e.Block
 			blockNum := block.Header.Number
 			blockHash, err := proto.GenerateBlockHash(block)
