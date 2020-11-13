@@ -1,3 +1,5 @@
+// Copyright Key Inside Co., Ltd. 2020 All Rights Reserved.
+
 package event
 
 import (

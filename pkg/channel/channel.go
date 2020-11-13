@@ -87,8 +87,8 @@ func (c *Channel) Close() {
 }
 
 // NewClient returns a channel client
-func (c *Channel) NewClient(options ...channel.ClientOption) (*channel.Client, error) {
-	return channel.New(c.ctx, options...)
+func (c *Channel) NewClient(options ...channel.ClientOption) (*Client, error) {
+	return newClient(c.ctx, options...)
 }
 
 // NewEventClient returns an event client
