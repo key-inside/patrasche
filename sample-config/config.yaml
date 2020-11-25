@@ -26,6 +26,8 @@ patrasche:
   #
   #   the performance for keeping in an AWS resource is very low!
   #
+  # *** if the Handler is BlockKeeper, this option will be ignored ***
+  #
   # {Prefix}_PATRASCHE_BLOCK=./BLOCKNUMBER
   # --patrasche.block arn:aws..:test/patrasche/worker-001/block
   block: BLOCKNUMBER

@@ -28,6 +28,7 @@ type blockKeep struct {
 	number uint64
 	arn    *arn.ARN
 	path   string
+	saveFn func(uint64) error
 }
 
 func (keep blockKeep) stringNumber() string {
@@ -35,6 +36,9 @@ func (keep blockKeep) stringNumber() string {
 }
 
 func (keep blockKeep) save() error {
+	if keep.saveFn != nil {
+		return keep.saveFn(keep.number)
+	}
 	if keep.arn != nil {
 		return aws.PutStringWithARN(*keep.arn, keep.stringNumber())
 	} else if keep.path != "" {
@@ -56,10 +60,20 @@ func Listen(txh tx.Handler) error {
 	}
 	defer channel.Close()
 
-	// block number keepping
-	keep, err := loadBlockKeep()
-	if err != nil {
-		return err
+	// block number keeping
+	var keep blockKeep
+	if keeper, ok := txh.(tx.BlockKeeper); ok {
+		blockNum, err := keeper.LoadBlockNumber()
+		if err != nil {
+			golog.Debug("failed to load the block number from the keeper")
+			return err
+		}
+		keep = blockKeep{number: blockNum, saveFn: keeper.SaveBlockNumber}
+	} else {
+		keep, err = loadBlockKeep()
+		if err != nil {
+			return err
+		}
 	}
 
 	// options

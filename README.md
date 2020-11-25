@@ -45,3 +45,8 @@ or via SSM
 ### and ...
 
 * See sample-config/config.yaml
+
+## Block number keeping
+
+* Using 'patrasche.block' flag
+* Passing a handler that implements patrasche.pkg.tx.BlockKeeper to patrasche.Listen function
