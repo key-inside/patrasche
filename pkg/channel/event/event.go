@@ -57,20 +57,20 @@ func (c *Client) RegisterBlockEvent(filter ...fab.BlockFilter) (fab.Registration
 	return c.eventService.RegisterBlockEvent(filter...)
 }
 
-// // RegisterFilteredBlockEvent registers for filtered block events. Unregister must be called when the registration is no longer needed.
-// func (c *Client) RegisterFilteredBlockEvent() (fab.Registration, <-chan *fab.FilteredBlockEvent, error) {
-// 	return c.eventService.RegisterFilteredBlockEvent()
-// }
+// RegisterFilteredBlockEvent registers for filtered block events. Unregister must be called when the registration is no longer needed.
+func (c *Client) RegisterFilteredBlockEvent() (fab.Registration, <-chan *fab.FilteredBlockEvent, error) {
+	return c.eventService.RegisterFilteredBlockEvent()
+}
 
-// // RegisterChaincodeEvent registers for chaincode events. Unregister must be called when the registration is no longer needed.
-// func (c *Client) RegisterChaincodeEvent(ccID, eventFilter string) (fab.Registration, <-chan *fab.CCEvent, error) {
-// 	return c.eventService.RegisterChaincodeEvent(ccID, eventFilter)
-// }
+// RegisterChaincodeEvent registers for chaincode events. Unregister must be called when the registration is no longer needed.
+func (c *Client) RegisterChaincodeEvent(ccID, eventFilter string) (fab.Registration, <-chan *fab.CCEvent, error) {
+	return c.eventService.RegisterChaincodeEvent(ccID, eventFilter)
+}
 
-// // RegisterTxStatusEvent registers for transaction status events. Unregister must be called when the registration is no longer needed.
-// func (c *Client) RegisterTxStatusEvent(txID string) (fab.Registration, <-chan *fab.TxStatusEvent, error) {
-// 	return c.eventService.RegisterTxStatusEvent(txID)
-// }
+// RegisterTxStatusEvent registers for transaction status events. Unregister must be called when the registration is no longer needed.
+func (c *Client) RegisterTxStatusEvent(txID string) (fab.Registration, <-chan *fab.TxStatusEvent, error) {
+	return c.eventService.RegisterTxStatusEvent(txID)
+}
 
 // Unregister removes the given registration and closes the event channel.
 func (c *Client) Unregister(reg fab.Registration) {
