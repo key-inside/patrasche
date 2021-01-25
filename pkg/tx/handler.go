@@ -6,9 +6,3 @@ package tx
 type Handler interface {
 	Handle(*Tx) error
 }
-
-// BlockKeeper _
-type BlockKeeper interface {
-	LoadBlockNumber() (uint64, error)
-	SaveBlockNumber(uint64) error
-}

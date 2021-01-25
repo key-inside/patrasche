@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/key-inside/patrasche/pkg/aws"
+	"github.com/key-inside/patrasche/pkg/block"
 	"github.com/key-inside/patrasche/pkg/channel"
 	"github.com/key-inside/patrasche/pkg/channel/event"
 	"github.com/key-inside/patrasche/pkg/proto"
@@ -62,7 +63,7 @@ func Listen(txh tx.Handler) error {
 
 	// block number keeping
 	var keep blockKeep
-	if keeper, ok := txh.(tx.BlockKeeper); ok {
+	if keeper, ok := txh.(block.Keeper); ok {
 		blockNum, err := keeper.LoadBlockNumber()
 		if err != nil {
 			golog.Debug("failed to load the block number from the keeper")
@@ -133,13 +134,13 @@ func listenBlockEvent(client *event.Client, txh tx.Handler, txFilter TxFilter, k
 	for {
 		select {
 		case e := <-notifier:
-			block := e.Block
-			blockNum := block.Header.Number
-			blockHash, err := proto.GenerateBlockHash(block)
+			blc := e.Block
+			blockNum := blc.Header.Number
+			blockHash, err := proto.GenerateBlockHash(blc)
 			if err != nil {
 				return err
 			}
-			golog.Infof("BLOCK[%d] TxCount: %d Hash: %x", blockNum, len(block.Data.Data), blockHash)
+			golog.Infof("BLOCK[%d] TxCount: %d Hash: %x", blockNum, len(blc.Data.Data), blockHash)
 
 			// keep current block number if needed
 			keep.number = blockNum
@@ -147,7 +148,14 @@ func listenBlockEvent(client *event.Client, txh tx.Handler, txFilter TxFilter, k
 				return err
 			}
 
-			for i, data := range block.Data.Data {
+			// block handler
+			if bh, ok := txh.(block.Handler); ok {
+				if err := bh.HandleBlock(blockHash, blc); err != nil {
+					return err
+				}
+			}
+
+			for i, data := range blc.Data.Data {
 				header, transaction, err := unmarshalTx(data)
 				if err != nil {
 					return err
@@ -157,7 +165,7 @@ func listenBlockEvent(client *event.Client, txh tx.Handler, txFilter TxFilter, k
 					Seq:            i,
 					Header:         header,
 					Transaction:    transaction,
-					ValidationCode: peer.TxValidationCode(block.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER][i]), // BlockMetadataIndex_TRANSACTIONS_FILTER = 2
+					ValidationCode: peer.TxValidationCode(blc.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER][i]), // BlockMetadataIndex_TRANSACTIONS_FILTER = 2
 				}
 				typ := t.HeaderType()
 				utc := t.UTC().Format("2006-01-02T15:04:05.000000000Z07:00")
