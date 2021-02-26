@@ -7,6 +7,7 @@ import (
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/ledger/rwset"
+	"github.com/hyperledger/fabric-protos-go/msp"
 	"github.com/hyperledger/fabric-protos-go/peer"
 
 	"github.com/key-inside/patrasche/pkg/proto"
@@ -14,11 +15,44 @@ import (
 
 // Tx _
 type Tx struct {
-	BlockNum       uint64
-	Seq            int
-	Header         *common.ChannelHeader
-	Transaction    *peer.Transaction
-	ValidationCode peer.TxValidationCode
+	BlockNum        uint64
+	Seq             int
+	Header          *common.ChannelHeader
+	SignatureHeader *common.SignatureHeader
+	Transaction     *peer.Transaction
+	ValidationCode  peer.TxValidationCode
+}
+
+// New _
+func New(blockNum uint64, seq int, validationByte byte, data []byte) (*Tx, error) {
+	envelope, err := proto.UnmarshalEnvelope(data)
+	if err != nil {
+		return nil, err
+	}
+	payload, err := proto.UnmarshalPayload(envelope.Payload)
+	if err != nil {
+		return nil, err
+	}
+	channelHeader, err := proto.UnmarshalChannelHeader(payload.Header.ChannelHeader)
+	if err != nil {
+		return nil, err
+	}
+	signatureHeader, err := proto.UnmarshalSignatureHeader(payload.Header.SignatureHeader)
+	if err != nil {
+		return nil, err
+	}
+	transaction, err := proto.UnmarshalTransaction(payload.Data)
+	if err != nil {
+		return nil, err
+	}
+	return &Tx{
+		BlockNum:        blockNum,
+		Seq:             seq,
+		Header:          channelHeader,
+		SignatureHeader: signatureHeader,
+		Transaction:     transaction,
+		ValidationCode:  peer.TxValidationCode(validationByte),
+	}, nil
 }
 
 // ID returns TxID
@@ -41,6 +75,24 @@ func (t Tx) UTC() time.Time {
 	ts := t.Header.Timestamp
 	utc := time.Unix(ts.Seconds, int64(ts.Nanos)).UTC()
 	return utc
+}
+
+// MSPID _
+func (t Tx) MSPID() string {
+	sid, err := t.GetIdentity()
+	if err != nil {
+		return ""
+	}
+	return sid.Mspid
+}
+
+// GetIdentity _
+func (t Tx) GetIdentity() (*msp.SerializedIdentity, error) {
+	sid, err := proto.UnmarshalSerializedIdentity(t.SignatureHeader.Creator)
+	if err != nil {
+		return nil, err
+	}
+	return sid, nil
 }
 
 // GetChaincodeAction _

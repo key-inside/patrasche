@@ -11,7 +11,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/events/deliverclient/seek"
 	"github.com/kataras/golog"
 	"github.com/spf13/viper"
@@ -156,17 +155,12 @@ func listenBlockEvent(client *event.Client, txh tx.Handler, txFilter TxFilter, k
 			}
 
 			for i, data := range blc.Data.Data {
-				header, transaction, err := unmarshalTx(data)
+				validationByte := blc.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER][i] // BlockMetadataIndex_TRANSACTIONS_FILTER = 2
+				t, err := tx.New(blockNum, i, validationByte, data)
 				if err != nil {
 					return err
 				}
-				t := &tx.Tx{
-					BlockNum:       blockNum,
-					Seq:            i,
-					Header:         header,
-					Transaction:    transaction,
-					ValidationCode: peer.TxValidationCode(blc.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER][i]), // BlockMetadataIndex_TRANSACTIONS_FILTER = 2
-				}
+
 				typ := t.HeaderType()
 				utc := t.UTC().Format("2006-01-02T15:04:05.000000000Z07:00")
 				pass := txFilter(t)
@@ -226,24 +220,4 @@ func loadBlockKeep() (blockKeep, error) {
 		keep.newest = false
 	}
 	return keep, nil
-}
-
-func unmarshalTx(data []byte) (*common.ChannelHeader, *peer.Transaction, error) {
-	envelope, err := proto.UnmarshalEnvelope(data)
-	if err != nil {
-		return nil, nil, err
-	}
-	payload, err := proto.UnmarshalPayload(envelope.Payload)
-	if err != nil {
-		return nil, nil, err
-	}
-	channelHeader, err := proto.UnmarshalChannelHeader(payload.Header.ChannelHeader)
-	if err != nil {
-		return nil, nil, err
-	}
-	transaction, err := proto.UnmarshalTransaction(payload.Data)
-	if err != nil {
-		return nil, nil, err
-	}
-	return channelHeader, transaction, nil
 }

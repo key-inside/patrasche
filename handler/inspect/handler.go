@@ -15,6 +15,8 @@ type handler struct{}
 // Handle _
 func (h handler) Handle(t *tx.Tx) error {
 	if t.IsValid() && t.HeaderType() == common.HeaderType_ENDORSER_TRANSACTION {
+		golog.Infof("MSPID: %s", t.MSPID())
+
 		// ChaincodeInvocationSpec
 		spec, err := t.GetChaincodeInvocationSpec()
 		if err != nil {
