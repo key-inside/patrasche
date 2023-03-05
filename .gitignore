@@ -1,8 +1,10 @@
 # OSX
 .DS_Store
 
-# Test binary, build with `go test -c`
+# Test
 *.test
+test/fixtures/*
+!test/fixtures/sample/
 
 # Go module
 vendor/

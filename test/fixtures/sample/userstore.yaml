@@ -1,0 +1,30 @@
+organizations:
+  patrasche:
+    users:
+      nello:
+        cert:
+          pem: |
+            -----BEGIN CERTIFICATE-----
+            MIICMjCCAdigAwIBAgIUbfpTjLyH4bLPqhkJ2y5PMXgfJrAwCgYIKoZIzj0EAwIw
+            ......
+            99k+2gIgZWqkOy8knN/ASoLz2TD6ffUfl7CzYPBRrU/ixvlTxKQ=
+            -----END CERTIFICATE-----
+        key:
+          pem: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgsG/Mf47p72zZlvnD
+            ......
+            /oVfxNX1Wufkw0SkIHjONIz++hXww4Qhx2oQXOhbqSJvLLYMbf6O+Z0G
+            -----END PRIVATE KEY-----
+
+  patrasche-alt:
+    users:
+      alois:
+        cert:
+          path: ...somepath.../tester/msp/signcerts/cert.pem
+        key:
+          path: ...somepath.../msp/keystore/10d02aa8491dbfec8d5771edf43a8b92332742bdcbb4825f54ba46f2a0318297_sk
+      daas:
+        cert:
+          path: ...somepath.../usercerts/daas.pem
+        # client will find the key '{client.credentialStore.cryptoStore.path}/keystore/{SKI of daas.pem}_sk'

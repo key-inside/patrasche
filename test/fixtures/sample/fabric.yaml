@@ -1,0 +1,67 @@
+client:
+  organization: patrasche
+  credentialStore:
+    cryptoStore:
+      path: /tmp
+  logging:
+    level: info
+
+channels:
+  _default:
+    policies:
+      queryChannelConfig:
+        minResponses: 1
+        maxTargets: 1
+        retryOpts:
+          attempts: 2
+          initialBackoff: 500ms
+          maxBackoff: 5s
+          backoffFactor: 2.0
+    peers:
+      test-peer: &default
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      test-peer-alt:
+        <<: *default
+
+organizations:
+  patrasche:
+    mspid: bernard
+    cryptoPath: do-not-use
+    peers:
+      - test-peer
+  patrasche-alt:
+    mspid: bouvier
+    cryptoPath: do-not-use
+    peers:
+      - test-peer-alt
+
+orderers:
+  test-orderer:
+    url: localhost:7050
+    grpcOptions:
+      ssl-target-name-override: localhost
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: true
+      # tlsCACerts:
+      #   # path:
+      #   pem: |
+
+peers:
+  test-peer: &default
+    url: localhost:7051
+    grpcOptions:
+      ssl-target-name-override: localhost
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: true
+  test-peer-alt:
+    <<: *default
+

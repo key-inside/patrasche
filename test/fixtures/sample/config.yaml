@@ -1,0 +1,28 @@
+patrasche:
+  logging:
+    level: debug # panic, fatal, error, warn, info, debug or disable
+
+  # Fabric SDK configuration
+  fabric:
+    # [Optional]. the prefix for environment variable overrides.
+    # It will be passed to ConfigProvider. (default: "FABRIC_SDK")
+    # See https://pkg.go.dev/github.com/hyperledger/fabric-sdk-go@v1.0.0/pkg/core/config#WithEnvPrefix
+    #envPrefix: "FABRIC_SDK"
+
+    channel: flanders
+
+    # [Optional]. the indentity in the user store.
+    identity:
+      # [Optional]. organization name of the identity in the Fabric network
+      # If not set, the fabric configuration's client.organization is used.
+      organization: patrasche-alt
+      # username of the identity in the user store
+      username: alois
+
+    # Fabric SDK config path or object
+    # It can be file-path and ARN.
+    # ex, - ./config/stage/fabric-config.yaml
+    #     - arn:aws:secretsmanager:::secret:test/patrasche/fabric-config.json
+    config:
+      - "./fixtures/fabric.yaml"
+      - "./fixtures/userstore.yaml"
