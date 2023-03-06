@@ -16,8 +16,7 @@ Integration tested Fabric versions:
 
 ### Fabric SDK version
 
-- [fabric-sdk-go v1.0.0][github-fabirc-sdk-go]
-- [fabric-protos-go v0.0.0-20200707132912-fee30f3ccd23][github-fabric-protos-go-fee30f3ccd23]
+- [fabric-sdk-go v1.0.1-0.20221020141211-7af45cede6af][github-fabirc-sdk-go]
 
 ## Contents
 
@@ -254,8 +253,7 @@ func WithConsoleLogWriter() Option
 
 [arn-doc]: https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html
 
-[github-fabirc-sdk-go]: https://github.com/hyperledger/fabric-sdk-go/tree/v1.0.0
-[github-fabric-protos-go-fee30f3ccd23]: https://github.com/hyperledger/fabric-protos-go/tree/fee30f3ccd23331e91f385892351c31c0b5fa502
+[github-fabirc-sdk-go]: https://github.com/hyperledger/fabric-sdk-go/tree/7af45cede6afa3939a9574bc9948cca9fb424257
 [github-cobra]:   https://github.com/spf13/cobra
 [github-viper]:   https://github.com/spf13/viper
 [github-zerolog]: https://github.com/rs/zerolog
