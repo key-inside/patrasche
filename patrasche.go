@@ -226,7 +226,7 @@ func (p *Patrasche) configFromViper(v *viper.Viper) (*Config, error) {
 				return nil, fmt.Errorf("can't merge config: %w", err)
 			}
 		} else {
-			p.logger.Debug().Str("filepath", src).Msg("load config from AWS")
+			p.logger.Debug().Str("filepath", src).Msg("load config file")
 			v.SetConfigFile(src)
 			if err := v.MergeInConfig(); err != nil {
 				return nil, fmt.Errorf("can't merge config: %w", err)
