@@ -39,6 +39,7 @@ type Patrasche struct {
 	cfgPrefix string
 
 	mutex          sync.Mutex
+	configViper    *viper.Viper
 	configProvider func() *Config
 	config         *Config
 }
@@ -111,8 +112,10 @@ func Bite(cmd *cobra.Command, options ...Option) (*Patrasche, error) {
 			p.SetLogLevel(lv)
 		}
 
+		p.configViper = v
+
 		p.configProvider = func() *Config {
-			cfg, err := p.configFromViper(v)
+			cfg, err := p.configFromViper()
 			if err != nil {
 				p.logger.Panic().Err(err).Msg("failed to load config")
 			}
@@ -143,6 +146,13 @@ func (p *Patrasche) Logger() zerolog.Logger {
 func (p *Patrasche) SetLogLevel(lv string) {
 	zLv, _ := zerolog.ParseLevel(lv)
 	p.logger = p.logger.Level(zLv)
+}
+
+func (p *Patrasche) ConfigMap() map[string]any {
+	if p.configViper != nil {
+		return p.configViper.AllSettings()
+	}
+	return map[string]any{}
 }
 
 func newDefaultFlagSet(namespace string) *pflag.FlagSet {
@@ -214,7 +224,8 @@ func overrideMethods(cmd *cobra.Command) error {
 	return nil
 }
 
-func (p *Patrasche) configFromViper(v *viper.Viper) (*Config, error) {
+func (p *Patrasche) configFromViper() (*Config, error) {
+	v := p.configViper
 	for _, src := range v.GetStringSlice(p.cfgName) {
 		if arn.IsARN(src) {
 			p.logger.Debug().Str("arn", src).Msg("load config from AWS")
