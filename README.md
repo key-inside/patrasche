@@ -192,7 +192,7 @@ func NewStdLogger(next Handler, logger *zerolog.Logger) Handler
 func NewHashFilter(next Handler, pattern string, filteredActions ...Action) Handler
 // block number writer
 func NewBlockNumberFileWriter(next Handler, path string) Handler
-func NewBlockNumberDynamoDBWriter(next Handler, table string, itemFactory func(*Block) any) Handler
+func NewBlockNumberDynamoDBWriter(next Handler, awsCfg aws.Config, table string, itemFactory func(*Block) any) Handler 
 ```
 
 > Presets for tx handler

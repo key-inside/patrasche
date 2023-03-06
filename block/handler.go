@@ -4,7 +4,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/key-inside/patrasche/aws"
+	"github.com/aws/aws-sdk-go-v2/aws"
+
+	patrasche_aws "github.com/key-inside/patrasche/aws"
 )
 
 type Handler interface {
@@ -35,13 +37,15 @@ func (h *blockNumerFileWriter) Handle(block *Block) error {
 }
 
 type blockNumerDynamoDBWriter struct {
+	cfg         aws.Config
 	table       string
 	itemFactory func(*Block) any
 	next        Handler
 }
 
-func NewBlockNumberDynamoDBWriter(next Handler, table string, itemFactory func(*Block) any) Handler {
+func NewBlockNumberDynamoDBWriter(next Handler, awsCfg aws.Config, table string, itemFactory func(*Block) any) Handler {
 	return &blockNumerDynamoDBWriter{
+		cfg:         awsCfg,
 		table:       table,
 		itemFactory: itemFactory,
 		next:        next,
@@ -49,5 +53,5 @@ func NewBlockNumberDynamoDBWriter(next Handler, table string, itemFactory func(*
 }
 
 func (h *blockNumerDynamoDBWriter) Handle(block *Block) error {
-	return aws.PutItemToDynamoDB(aws.DefaultConfig(), h.table, h.itemFactory(block))
+	return patrasche_aws.PutItemToDynamoDB(h.cfg, h.table, h.itemFactory(block))
 }
