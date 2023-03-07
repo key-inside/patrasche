@@ -53,5 +53,12 @@ func NewBlockNumberDynamoDBWriter(next Handler, awsCfg aws.Config, table string,
 }
 
 func (h *blockNumerDynamoDBWriter) Handle(block *Block) error {
-	return patrasche_aws.PutItemToDynamoDB(h.cfg, h.table, h.itemFactory(block))
+	err := patrasche_aws.PutItemToDynamoDB(h.cfg, h.table, h.itemFactory(block))
+	if err != nil {
+		return err
+	}
+	if h.next != nil {
+		return h.next.Handle(block)
+	}
+	return nil
 }
