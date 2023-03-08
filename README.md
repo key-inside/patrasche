@@ -34,19 +34,19 @@ package dapp
 
 import (
     "github.com/spf13/cobra"
-	"github.com/key-inside/patrasche"
-	"github.com/key-inside/patrasche/cmd/ccquery"
-	"github.com/key-inside/patrasche/cmd/inspect"
+    "github.com/key-inside/patrasche"
+    "github.com/key-inside/patrasche/cmd/ccquery"
+    "github.com/key-inside/patrasche/cmd/inspect"
 )
 
 func main() {
     c := &cobra.Command{
-		Use:     "dapp",
-		Short:   "Patrasche DApp",
-		Long:    "HLF block listener and chaincode query tool",
-		Version: "v0.0.0",
-	}
-	c.AddCommand(inspect.Command(), ccquery.Command())
+        Use:     "dapp",
+        Short:   "Patrasche DApp",
+        Long:    "HLF block listener and chaincode query tool",
+        Version: "v0.0.0",
+    }
+    c.AddCommand(inspect.Command(), ccquery.Command())
 
     // bite 'c' at any time before executing
     // you can add sub-commands to 'c' after being bitten
@@ -59,7 +59,7 @@ func main() {
 ## Configuration
 
 * Patrasche configuration set via config file, environment variable, AWS resource or flag
-* If the value is [ARN][arn-doc], it is treated as an aws resource.
+* If the value is [ARN][arn-doc], it is treated as an AWS resource.
 * Currently, AWS resource supports only ParameterStore(SSM) and SecretsManager.
 * Patrasche supports multiple config files and resources.
 
