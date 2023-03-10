@@ -7,8 +7,8 @@ setver:
 	@sed -i '' 's/\ver = ".*"/ver = "$(PKG_VERSION)"/' $(VERSION_FILE)
 
 test:
-	@go test ./...
 	@go clean -testcache
+	@go test ./...
 
 version:
 	@echo $(GIT_VERSION)

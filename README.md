@@ -175,6 +175,30 @@ cobra.Command{
 }
 ```
 
+### Block Listener
+
+* You can create a block event listener with the function below.
+
+```go
+func NewListener(ch *channel.Channel, handler Handler, options ...ListenerOption) (*Listener, error)
+```
+
+* Or you can easily listen using the method below.
+
+```go
+func (p *Patrasche) ListenBlock(handler block.Handler, options ...block.ListenerOption) error 
+```
+
+* Also you can write your own listener code.
+
+> Listener options
+
+```go
+func WithStartBlock(blockNum uint64) ListenerOption
+func WithEndBlock(blockNum uint64) ListenerOption
+func WithShutdown(shutdown func(os.Signal)) ListenerOption
+```
+
 ### Handler
 
 * To handle block events and transactions, you must implement handlers.

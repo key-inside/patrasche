@@ -57,6 +57,7 @@ func Test_Inspect(t *testing.T) {
 		return
 	}
 
+	// c.SetArgs([]string{"inspect", "--start=0", testConfigs})
 	c.SetArgs([]string{"inspect", "--start=24049", "--end=0", testConfigs})
 	// c.SetArgs([]string{"inspect", "--start=24049", "--end=0", "--filter.block-hash=^[abc1234]", testConfigs})
 	// c.SetArgs([]string{"inspect", "--start=24049", "--end=24061", "--filter.tx-hash=^[abcd1234]", "--filter.valid-endorser", testConfigs})

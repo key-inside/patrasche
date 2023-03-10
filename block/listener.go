@@ -3,6 +3,10 @@ package block
 import (
 	"errors"
 	"fmt"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 
 	"github.com/key-inside/patrasche/channel"
 	evtclient "github.com/key-inside/patrasche/client/event"
@@ -13,6 +17,7 @@ type Listener struct {
 	handler    Handler
 	startBlock *uint64
 	endBlock   *uint64
+	shutdown   func(os.Signal)
 }
 
 type ListenerOption func(*Listener) error
@@ -37,11 +42,11 @@ func NewListener(ch *channel.Channel, handler Handler, options ...ListenerOption
 }
 
 func (l *Listener) Listen() error {
-	var blockNumOption evtclient.Option = nil
+	opts := []evtclient.Option{}
 	if l.startBlock != nil {
-		blockNumOption = evtclient.WithBlockNum(*l.startBlock)
+		opts = append(opts, evtclient.WithBlockNum(*l.startBlock))
 	}
-	client, err := l.ch.NewBlockEventClient(blockNumOption)
+	client, err := l.ch.NewBlockEventClient(opts...)
 	if err != nil {
 		return fmt.Errorf("failed to create event client: %w", err)
 	}
@@ -51,24 +56,50 @@ func (l *Listener) Listen() error {
 	}
 	defer client.Unregister(registration)
 
-	for {
-		evt := <-notifier // wait block event
+	var wg sync.WaitGroup
 
-		block, err := New(evt.Block)
-		if err != nil {
-			return fmt.Errorf("failed to parse block data: %w", err)
+	errCh := make(chan error, 1)
+	stopCh := make(chan bool, 1)
+
+	go func() {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		sig := <-quit
+		stopCh <- true
+		wg.Wait()
+		if l.shutdown != nil {
+			l.shutdown(sig)
 		}
+		os.Exit(1)
+	}()
 
-		if err := l.handler.Handle(block); err != nil {
-			return err
+	wg.Add(1)
+	go func() {
+	LISTENING:
+		for {
+			select {
+			case evt := <-notifier: // wait block event
+				block, err := New(evt.Block)
+				if err != nil {
+					errCh <- fmt.Errorf("failed to parse block data: %w", err)
+					break LISTENING
+				}
+				if err := l.handler.Handle(block); err != nil {
+					errCh <- err
+					break LISTENING
+				}
+				if l.endBlock != nil && block.Num >= *l.endBlock {
+					errCh <- nil
+					break LISTENING
+				}
+			case <-stopCh:
+				break LISTENING
+			}
 		}
+		wg.Done()
+	}()
 
-		if l.endBlock != nil && block.Num >= *l.endBlock {
-			break
-		}
-	}
-
-	return nil
+	return <-errCh
 }
 
 func WithStartBlock(blockNum uint64) ListenerOption {
@@ -81,6 +112,13 @@ func WithStartBlock(blockNum uint64) ListenerOption {
 func WithEndBlock(blockNum uint64) ListenerOption {
 	return func(l *Listener) error {
 		l.endBlock = &blockNum
+		return nil
+	}
+}
+
+func WithShutdown(shutdown func(os.Signal)) ListenerOption {
+	return func(l *Listener) error {
+		l.shutdown = shutdown
 		return nil
 	}
 }

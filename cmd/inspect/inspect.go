@@ -54,7 +54,11 @@ func Command() *cobra.Command {
 				blockHandler = block.NewStdLogger(blockHandler, &logger)
 
 				// listener options
-				opts := []block.ListenerOption{}
+				opts := []block.ListenerOption{
+					block.WithShutdown(func(sig os.Signal) {
+						logger.Info().Str("signal", sig.String()).Msg("shutting down...")
+					}),
+				}
 				var startBn uint64
 				if path := viper.GetString("save"); path != "" {
 					nb, _ := os.ReadFile(path)
@@ -64,7 +68,7 @@ func Command() *cobra.Command {
 				}
 				if viper.IsSet("start") {
 					bn := viper.GetUint64("start")
-					if startBn < bn {
+					if startBn <= bn {
 						opts = append(opts, block.WithStartBlock(bn)) // it will override previous WithStartBlock value
 					}
 				}
