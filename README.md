@@ -18,6 +18,18 @@ Integration tested Fabric versions:
 
 - [fabric-sdk-go v1.0.1-0.20221020141211-7af45cede6af][github-fabirc-sdk-go]
 
+> `IMPORTANT`  
+> Currently *fabric-sdk-go* is not compatible with *google.golang.org/grpc@v1.43.0 or higher* in *allow-insecure* mode.  
+> So, if you want to test locally without TLS, (go mod) replace *google.golang.org/grpc* version to *1.42.0*
+```go
+// go.mod example
+module example
+
+go 1.18
+
+replace google.golang.org/grpc => google.golang.org/grpc v1.42.0 // for allow-insecure
+```
+
 ## Contents
 
 - [Examples](#Examples)
