@@ -164,7 +164,8 @@ func newDefaultFlagSet(namespace string) *pflag.FlagSet {
 	// fabric
 	fset.String(namespace+"fabric.envPrefix", "", "prefix for environment variable of Fabric SDK")
 	fset.String(namespace+"fabric.channel", "", "channel name")
-	fset.String(namespace+"fabric.user", "", "username in the user store")
+	fset.String(namespace+"fabric.identity.organization", "", "user organization")
+	fset.String(namespace+"fabric.identity.username", "", "username in the user store")
 	fset.StringSlice(namespace+"fabric.config", []string{}, "Fabric SDK config sources")
 
 	return fset
