@@ -118,7 +118,7 @@ func WithEnvPrefix(prefix string) Option
 
 ```go
 func WithConfigFlagName(name string) Option
-// WithConfigFlagName("extra") => --extra.config=./config.yaml
+// WithConfigFlagName("extra.config") => --extra.config=./config.yaml
 // WithConfigFlagName("") => No 'config' flag!
 ```
 
