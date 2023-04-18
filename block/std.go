@@ -47,6 +47,7 @@ func (h *stdLogger) Handle(block *Block) error {
 	h.logger.Info().
 		Uint64("number", block.Num).
 		Hex("hash", block.Hash).
+		Hex("data_hash", block.Header.DataHash).
 		Int("tx_count", len(block.Txs)).
 		Msg("block")
 	if h.next != nil {

@@ -7,6 +7,8 @@ import (
 )
 
 type Block struct {
+	*common.Block
+
 	Num  uint64
 	Hash []byte
 	Txs  []*tx.Tx
@@ -29,8 +31,9 @@ func New(block *common.Block) (*Block, error) {
 	}
 
 	return &Block{
-		Num:  block.Header.Number,
-		Hash: hash,
-		Txs:  txs,
+		Block: block,
+		Num:   block.Header.Number,
+		Hash:  hash,
+		Txs:   txs,
 	}, nil
 }
