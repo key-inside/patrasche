@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/asn1"
 	"errors"
-	"hash"
 	"math"
 
 	"github.com/hyperledger/fabric-protos-go/common"
@@ -15,8 +14,6 @@ type asn1Header struct {
 	PreviousHash []byte
 	DataHash     []byte
 }
-
-var hasher hash.Hash = sha256.New()
 
 // GenerateHash returns the ASN.1 marshaled hash bytes
 func GenerateHash(block *common.Block) ([]byte, error) {
@@ -35,6 +32,7 @@ func GenerateHash(block *common.Block) ([]byte, error) {
 		return nil, err
 	}
 
+	hasher := sha256.New()
 	hasher.Write(result) // ignore error
 	return hasher.Sum(nil), nil
 }
