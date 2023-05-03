@@ -54,52 +54,61 @@ func (l *Listener) Listen() error {
 	if err != nil {
 		return fmt.Errorf("failed to register block event: %w", err)
 	}
-	defer client.Unregister(registration)
 
-	var wg sync.WaitGroup
+	quitCh := make(chan error, 1)
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
-	errCh := make(chan error, 1)
-	stopCh := make(chan bool, 1)
+	stopping := false
 
-	go func() {
-		quit := make(chan os.Signal, 1)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		sig := <-quit
-		stopCh <- true
-		wg.Wait()
-		if l.shutdown != nil {
-			l.shutdown(sig)
+	var m sync.Mutex
+	quit := func(retErr error) {
+		m.Lock()
+		defer m.Unlock()
+		if stopping {
+			return
 		}
-		os.Exit(1)
-	}()
+		stopping = true
+		// asynchronous unregister
+		go func() {
+			client.Unregister(registration)
+			quitCh <- retErr
+		}()
+	}
 
-	wg.Add(1)
-	go func() {
-	LISTENING:
-		for {
-			select {
-			case evt := <-notifier: // wait block event
-				block, err := New(evt.Block)
-				if err != nil {
-					errCh <- fmt.Errorf("failed to parse block data: %w", err)
-					break LISTENING
-				}
-				if err := l.handler.Handle(block); err != nil {
-					errCh <- err
-					break LISTENING
-				}
-				if l.endBlock != nil && block.Num >= *l.endBlock {
-					errCh <- nil
-					break LISTENING
-				}
-			case <-stopCh:
-				break LISTENING
+	for {
+		select {
+		case sig := <-sigCh:
+			quit(nil)
+			if l.shutdown != nil {
+				l.shutdown(sig)
 			}
+		case evt := <-notifier: // block event
+			if evt != nil {
+				if !stopping {
+					block, err := New(evt.Block)
+					if err != nil {
+						quit(fmt.Errorf("failed to parse block data: %w", err))
+						break
+					}
+					if err := l.handler.Handle(block); err != nil {
+						quit(err)
+						break
+					}
+					if l.endBlock != nil && block.Num >= *l.endBlock {
+						quit(nil)
+					}
+				}
+				// else MUST consume events in buffer for closing the channel.
+				// because, when unregister event channel, fabric-sdk-go write nil to channel.
+				// so, if the channel buffer is full, it will be pended forever.
+			} else {
+				quit(nil)
+			}
+		case e := <-quitCh:
+			return e
 		}
-		wg.Done()
-	}()
-
-	return <-errCh
+	}
 }
 
 func WithStartBlock(blockNum uint64) ListenerOption {
