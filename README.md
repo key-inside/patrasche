@@ -172,7 +172,7 @@ func FromContext(ctx context.Context) *Patrasche
 
 ```go
 cobra.Command{
-     PreRun: func(cmd *cobra.Command, args []string) {
+    PreRun: func(cmd *cobra.Command, args []string) {
         // some codes...
         p := patrasche.FromContext(cmd.Context())
         p.SetLogLevel("debug")
@@ -210,6 +210,8 @@ func WithStartBlock(blockNum uint64) ListenerOption
 func WithEndBlock(blockNum uint64) ListenerOption
 func WithShutdown(shutdown func(os.Signal)) ListenerOption
 ```
+
+* The shutdown function is executed only when terminated by signal.
 
 ### Handler
 
