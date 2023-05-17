@@ -76,7 +76,9 @@ func main() {
 * Patrasche supports multiple config files and resources.
 
 ```sh
+# only CSV supproted
 --config="./config.yaml,./config-stg.json"
+export DAPP_CONFIG=./config.yaml,./config-stg.json
 ```
 
 ```yaml

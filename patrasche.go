@@ -227,7 +227,14 @@ func overrideMethods(cmd *cobra.Command) error {
 
 func (p *Patrasche) configFromViper() (*Config, error) {
 	v := p.configViper
-	for _, src := range v.GetStringSlice(p.cfgName) {
+
+	// forces comma separation
+	cfgs := []string{}
+	if err := v.UnmarshalKey(p.cfgName, &cfgs); err != nil {
+		return nil, err
+	}
+
+	for _, src := range cfgs {
 		if arn.IsARN(src) {
 			p.logger.Debug().Str("arn", src).Msg("load config from AWS")
 			cfgMap, err := aws.GetConfigMap(src)
