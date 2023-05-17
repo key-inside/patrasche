@@ -15,7 +15,7 @@ require (
 	github.com/hyperledger/fabric-protos-go v0.0.0-20211118165945-23d738fc3553
 	github.com/hyperledger/fabric-sdk-go v1.0.1-0.20221020141211-7af45cede6af // direct
 	github.com/rs/zerolog v1.29.0
-	github.com/spf13/cobra v1.6.1
+	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 )
@@ -47,7 +47,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hyperledger/fabric-config v0.0.5 // indirect
 	github.com/hyperledger/fabric-lib-go v1.0.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.1 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
