@@ -194,13 +194,17 @@ cobra.Command{
 * You can create a block event listener with the function below.
 
 ```go
-func NewListener(ch *channel.Channel, handler Handler, options ...ListenerOption) (*Listener, error)
+// package "github.com/key-inside/patrasche/listener"
+
+func New(ch *channel.Channel, handler Handler, options ...Option) (*Listener, error)
 ```
 
 * Or you can easily listen using the method below.
 
 ```go
-func (p *Patrasche) ListenBlock(handler block.Handler, options ...block.ListenerOption) error 
+// package "github.com/key-inside/patrasche"
+
+func (p *Patrasche) ListenBlock(handler block.Handler, options ...listener.Option) error 
 ```
 
 * Also you can write your own listener code.
@@ -208,9 +212,11 @@ func (p *Patrasche) ListenBlock(handler block.Handler, options ...block.Listener
 > Listener options
 
 ```go
-func WithStartBlock(blockNum uint64) ListenerOption
-func WithEndBlock(blockNum uint64) ListenerOption
-func WithShutdown(shutdown func(os.Signal)) ListenerOption
+// package "github.com/key-inside/patrasche/listener"
+
+func WithStartBlock(blockNum uint64) Option
+func WithEndBlock(blockNum uint64) Option
+func WithShutdown(shutdown func(os.Signal)) Option
 ```
 
 * The shutdown function is executed only when terminated by signal.
@@ -276,6 +282,16 @@ func (p *Patrasche) SetLogLevel(lv string)
 func WithLogWriter(w io.Writer) Option
 func WithConsoleLogWriter() Option
 ```
+
+### Query/Invoke Chaincodes
+
+* See the sample code [ccquery.go](./cmd/ccquery/ccquery.go)
+* See the test code [Test_CCQuery](./test/patrasche_test.go#L91)
+
+### Query Ledger Data (ex, block, transaction, ...)
+
+* See the sample code [ledger.go](./cmd/ledger/ledger.go)
+* See the test code [Test_QueryBlock](./test/patrasche_test.go#L110) and [Test_QueryTransaction](./test/patrasche_test.go#L129)
 
 ## Test
 

@@ -9,6 +9,7 @@ import (
 	"github.com/key-inside/patrasche"
 	"github.com/key-inside/patrasche/cmd/ccquery"
 	"github.com/key-inside/patrasche/cmd/inspect"
+	"github.com/key-inside/patrasche/cmd/ledger"
 )
 
 const testConfigs = "--config=./fixtures/config.yaml"
@@ -20,13 +21,18 @@ func bufferdOutput(c *cobra.Command) (out *bytes.Buffer) {
 	return
 }
 
-func Test_Help(t *testing.T) {
-	c := &cobra.Command{
+func testCommand() *cobra.Command {
+	return &cobra.Command{
 		Use:     "test",
 		Short:   "Patrasche Test",
 		Long:    "Patrasche Test Command",
 		Version: "v0.0.0",
 	}
+}
+
+func Test_Help(t *testing.T) {
+	c := testCommand()
+	c.AddCommand(inspect.Command(), ccquery.Command(), ledger.Command())
 	// sets output before biting
 	out := bufferdOutput(c)
 
@@ -40,13 +46,27 @@ func Test_Help(t *testing.T) {
 	t.Log(out.String())
 }
 
-func Test_Inspect(t *testing.T) {
-	c := &cobra.Command{
-		Use:     "test",
-		Short:   "Patrasche Test",
-		Long:    "Patrasche Test Command",
-		Version: "v0.0.0",
+func Test_RootCmd(t *testing.T) {
+	c := ccquery.Command()
+	// sets output before biting
+	out := bufferdOutput(c)
+
+	_, err := patrasche.Bite(c)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+		return
 	}
+
+	c.SetArgs([]string{"--help"})
+	if err := c.Execute(); err != nil {
+		t.Errorf("Unexpected error: %v", err)
+		return
+	}
+	t.Log(out.String())
+}
+
+func Test_Inspect(t *testing.T) {
+	c := testCommand()
 	c.AddCommand(inspect.Command())
 	// sets output before biting
 	out := bufferdOutput(c)
@@ -69,13 +89,8 @@ func Test_Inspect(t *testing.T) {
 }
 
 func Test_CCQuery(t *testing.T) {
-	c := &cobra.Command{
-		Use:     "test",
-		Short:   "Patrasche Test",
-		Long:    "Patrasche Test Command",
-		Version: "v0.0.0",
-	}
-	c.AddCommand(inspect.Command(), ccquery.Command())
+	c := testCommand()
+	c.AddCommand(ccquery.Command())
 	// sets output before biting
 	out := bufferdOutput(c)
 
@@ -92,8 +107,9 @@ func Test_CCQuery(t *testing.T) {
 	t.Log(out.String())
 }
 
-func Test_RootCmd(t *testing.T) {
-	c := ccquery.Command()
+func Test_QueryBlock(t *testing.T) {
+	c := testCommand()
+	c.AddCommand(ledger.Command())
 	// sets output before biting
 	out := bufferdOutput(c)
 
@@ -103,10 +119,28 @@ func Test_RootCmd(t *testing.T) {
 		return
 	}
 
-	c.SetArgs([]string{"--help"})
+	c.SetArgs([]string{"ldg", "-b=24049", testConfigs})
 	if err := c.Execute(); err != nil {
 		t.Errorf("Unexpected error: %v", err)
+	}
+	t.Log(out.String())
+}
+
+func Test_QueryTransaction(t *testing.T) {
+	c := testCommand()
+	c.AddCommand(ledger.Command())
+	// sets output before biting
+	out := bufferdOutput(c)
+
+	_, err := patrasche.Bite(c)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
 		return
+	}
+
+	c.SetArgs([]string{"ldg", "-t=5e9ba4a754493424959bfeb52496652b99fa5be098d27a8e23c887fcff45de24", testConfigs})
+	if err := c.Execute(); err != nil {
+		t.Errorf("Unexpected error: %v", err)
 	}
 	t.Log(out.String())
 }

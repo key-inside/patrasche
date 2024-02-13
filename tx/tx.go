@@ -20,12 +20,8 @@ type Tx struct {
 	ValidationCode  peer.TxValidationCode
 }
 
-func New(blockNum uint64, seq int, validationByte byte, data []byte) (*Tx, error) {
-	envelope, err := proto.UnmarshalEnvelope(data)
-	if err != nil {
-		return nil, err
-	}
-	payload, err := proto.UnmarshalPayload(envelope.Payload)
+func New(blockNum uint64, seq int, validationByte byte, payloadData []byte) (*Tx, error) {
+	payload, err := proto.UnmarshalPayload(payloadData)
 	if err != nil {
 		return nil, err
 	}

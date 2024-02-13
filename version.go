@@ -1,7 +1,7 @@
 package patrasche
 
 // set manually
-var ver = "v1.1.2"
+var ver = "v1.2.0"
 
 func Version() string {
 	return ver

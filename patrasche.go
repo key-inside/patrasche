@@ -27,6 +27,7 @@ import (
 	"github.com/key-inside/patrasche/aws"
 	"github.com/key-inside/patrasche/block"
 	"github.com/key-inside/patrasche/channel"
+	"github.com/key-inside/patrasche/listener"
 	"github.com/key-inside/patrasche/logger"
 )
 
@@ -343,14 +344,14 @@ func (p *Patrasche) NewChannel(ctxOpts ...fabsdk.ContextOption) (*channel.Channe
 	return channel.New(p.config.Fabric.Channel, ctx, ctxOpts...)
 }
 
-func (p *Patrasche) ListenBlock(handler block.Handler, options ...block.ListenerOption) error {
+func (p *Patrasche) ListenBlock(handler block.Handler, options ...listener.Option) error {
 	ch, err := p.NewChannel()
 	if err != nil {
 		return fmt.Errorf("failed to connect channel: %w", err)
 	}
 	defer ch.Close()
 
-	l, err := block.NewListener(ch, handler, options...)
+	l, err := listener.New(ch, handler, options...)
 	if err != nil {
 		return fmt.Errorf("failed to create listener: %w", err)
 	}

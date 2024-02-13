@@ -10,6 +10,7 @@ import (
 
 	"github.com/key-inside/patrasche"
 	"github.com/key-inside/patrasche/block"
+	"github.com/key-inside/patrasche/listener"
 	"github.com/key-inside/patrasche/tx"
 )
 
@@ -54,8 +55,8 @@ func Command() *cobra.Command {
 				blockHandler = block.NewStdLogger(blockHandler, &logger)
 
 				// listener options
-				opts := []block.ListenerOption{
-					block.WithShutdown(func(sig os.Signal) {
+				opts := []listener.Option{
+					listener.WithShutdown(func(sig os.Signal) {
 						logger.Info().Str("signal", sig.String()).Msg("shutting down...")
 					}),
 				}
@@ -63,17 +64,17 @@ func Command() *cobra.Command {
 				if path := viper.GetString("save"); path != "" {
 					nb, _ := os.ReadFile(path)
 					startBn, _ = strconv.ParseUint(string(nb), 10, 64)
-					opts = append(opts, block.WithStartBlock(startBn))
+					opts = append(opts, listener.WithStartBlock(startBn))
 					blockHandler = block.NewBlockNumberFileWriter(blockHandler, path) // save block number before block filtering
 				}
 				if viper.IsSet("start") {
 					bn := viper.GetUint64("start")
 					if startBn <= bn {
-						opts = append(opts, block.WithStartBlock(bn)) // it will override previous WithStartBlock value
+						opts = append(opts, listener.WithStartBlock(bn)) // it will override previous WithStartBlock value
 					}
 				}
 				if viper.IsSet("end") {
-					opts = append(opts, block.WithEndBlock(viper.GetUint64("end")))
+					opts = append(opts, listener.WithEndBlock(viper.GetUint64("end")))
 				}
 
 				if err := p.ListenBlock(blockHandler, opts...); err != nil {
